@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>URL Shortener</title>
+</head>
+<body>
+    <h1>Free URL Shortener</h1>
+    <form id="url-form">
+        <input type="text" id="original-url" placeholder="Enter your URL" required>
+        <input type="text" id="custom-slug" placeholder="Enter custom slug (optional)">
+        <button type="submit">Shorten URL</button>
+    </form>
+    <div id="result"></div>
+    <script src="https://www.gstatic.com/firebasejs/9.19.1/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.19.1/firebase-database.js"></script>
+    <script>
+        // Firebase configuration
+        const firebaseConfig = {
+            apiKey: "your-api-key",
+            authDomain: "your-auth-domain",
+            databaseURL: "your-database-url",
+            projectId: "your-project-id",
+            storageBucket: "your-storage-bucket",
+            messagingSenderId: "your-sender-id",
+            appId: "your-app-id"
+        };
+        const app = firebase.initializeApp(firebaseConfig);
+        const db = firebase.getDatabase(app);
+
+        // Form Submission
+        document.getElementById('url-form').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const originalUrl = document.getElementById('original-url').value;
+            let customSlug = document.getElementById('custom-slug').value;
+            if (!customSlug) customSlug = Math.random().toString(36).substr(2, 8);
+
+            const dbRef = firebase.ref(db, 'urls/' + customSlug);
+            firebase.set(dbRef, originalUrl).then(() => {
+                document.getElementById('result').innerText = 
+                    `Shortened URL: https://yourdomain.com/redirect.html?slug=${customSlug}`;
+            }).catch(() => {
+                document.getElementById('result').innerText = 'Error: Slug not available!';
+            });
+        });
+    </script>
+</body>
+</html>
